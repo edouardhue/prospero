@@ -36,7 +36,7 @@ public final class ProsperoBot {
         LOGGER.info("Hello");
         final long start = System.nanoTime();
         final MerimeeReader reader = new MerimeeReader();
-        final Map<String, Monument> monuments = reader.read(arguments.getMerimeeFile());
+        this.monuments = reader.read(arguments.getMerimeeFile());
         final long end = System.nanoTime();
         LOGGER.info("Found {} monuments in {} ms", monuments.size(), (end - start) / 1E6);
         final ForkJoinPool pool = new ForkJoinPool();

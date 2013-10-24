@@ -14,6 +14,7 @@ import prospero.commons.ProsperoBot;
 import prospero.commons.mediawiki.Page;
 import prospero.commons.mediawiki.Revision;
 import prospero.commons.merimee.Protection;
+import prospero.commons.merimee.Protection.Type;
 
 public final class MerimeeCorrectorAction extends RecursiveAction {
     private static final long serialVersionUID = 1L;
@@ -39,36 +40,48 @@ public final class MerimeeCorrectorAction extends RecursiveAction {
         if (!page.getRevisions().isEmpty()) {
             final Revision rev = page.getRevisions().get(0);
             final Matcher mériméeMatcher = MÉRIMÉE_PATTERN.matcher(rev.getContent());
+            final StringBuffer nextRev = new StringBuffer(rev.getContent().length());
             while (mériméeMatcher.find()) {
                 LOGGER.debug("Found template {}", mériméeMatcher.group(0));
                 final String templateContent = mériméeMatcher.group(1);
-                new TemplateAction(templateContent).fork();
+                mériméeMatcher.appendReplacement(nextRev, updateTemplate(templateContent));
             }
+            mériméeMatcher.appendTail(nextRev);
+            LOGGER.debug(nextRev.toString());
         }
     }
-
-    private final class TemplateAction extends RecursiveAction {
-        private static final long serialVersionUID = 1L;
-
-        private final String templateContent;
-        
-        private TemplateAction(final String templateContent) {
-            this.templateContent = templateContent;
-        }
-        
-        @Override
-        protected void compute() {
-            final Set<String> ids = new HashSet<>();
-            final Set<Protection.Type> types = EnumSet.noneOf(Protection.Type.class);
-            final Matcher idsMatcher = ID_PATTERN.matcher(templateContent);
-            while (idsMatcher.find()) {
-                final String id = idsMatcher.group();
-                ids.add(id);
-                if (bot.getMonuments().containsKey(id)) {
-                    types.addAll(bot.getMonuments().get(id).getProtectionTypes());
-                }
-                LOGGER.debug("Found ID {}\n\tMérimée type is {}", id, bot.getMonuments().get(id));
+    
+    private String updateTemplate(final String templateContent) {
+        final Set<String> ids = new HashSet<>();
+        final Set<Protection.Type> types = EnumSet.noneOf(Protection.Type.class);
+        final Matcher idsMatcher = ID_PATTERN.matcher(templateContent);
+        while (idsMatcher.find()) {
+            final String id = idsMatcher.group();
+            LOGGER.debug("Found ID {}", id);
+            ids.add(id);
+            if (bot.getMonuments().containsKey(id)) {
+                final Set<Type> monumentTypes = bot.getMonuments().get(id).getProtectionTypes();
+                LOGGER.debug("Types are {}", monumentTypes);
+                types.addAll(monumentTypes);
             }
         }
+        final StringBuilder buffer = new StringBuilder("{{Mérimée");
+        for (final String id : ids) {
+            buffer.append('|');
+            buffer.append(id);
+        }
+        if (!types.isEmpty()) {
+            buffer.append("|type=");
+            if (types.contains(Type.CLASSE) && types.contains(Type.INSCRIT)) {
+                buffer.append("lesdeux");
+            } else if (types.contains(Type.CLASSE)) {
+                buffer.append("classé");
+            } else if (types.contains(Type.INSCRIT)) {
+                buffer.append("inscrit");
+            }
+        }
+        buffer.append("}}");
+        
+        return buffer.toString();
     }
 }

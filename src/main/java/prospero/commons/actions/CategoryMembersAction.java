@@ -50,7 +50,7 @@ public final class CategoryMembersAction extends RecursiveAction {
             try (final InputStream is = query().asStream()) {
                 final MWResponse response = MAPPER.readValue(is, MWResponse.class);
                 if (response.getqContinue() == null) {
-                    LOGGER.debug("No continue, stopping");
+                    LOGGER.debug("No continue field in response, stopping");
                 } else {
                     new CategoryMembersAction(bot, apiUrl, categoryTitle, response.getqContinue()).fork();
                 }
