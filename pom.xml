@@ -9,6 +9,7 @@
   <organization>
     <name>Wikimédia France</name>
   </organization>
+ 
   <developers>
     <developer>
       <id>edouardhue</id>
@@ -16,12 +17,24 @@
       <email>edouard.hue@gmail.com</email>
     </developer>
   </developers>
+  
   <licenses>
     <license>
       <name>The Apache Software License, Version 2.0</name>
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
+
+  <issueManagement>
+    <url>https://github.com/edouardhue/prospero/issues</url>
+    <system>GitHub</system>
+  </issueManagement>
+
+  <scm>
+    <url>https://github.com/edouardhue/prospero</url>
+    <connection>scm:git:git://github.com/edouardhue/prospero.git</connection>
+    <developerConnection>scm:git:git@github.com:edouardhue/prospero.git</developerConnection>
+  </scm>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
