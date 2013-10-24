@@ -9,6 +9,7 @@
   <organization>
     <name>Wikimédia France</name>
   </organization>
+  <url>https://github.com/edouardhue/prospero</url>
  
   <developers>
     <developer>
@@ -63,6 +64,12 @@
         <version>2.6</version>
         <configuration>
           <encoding>ISO-8859-1</encoding>
+          <resources>
+            <resource>
+              <directory>src/main/resources</directory>
+              <filtering>true</filtering>
+            </resource>
+          </resources>
         </configuration>
       </plugin>
       <plugin>
@@ -128,6 +135,11 @@
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>1.7.5</version>
     </dependency>
   </dependencies>
 </project>

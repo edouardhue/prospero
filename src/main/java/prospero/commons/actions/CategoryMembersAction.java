@@ -1,4 +1,4 @@
-package prospero.commons.tasks;
+package prospero.commons.actions;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,8 +11,10 @@ import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import prospero.commons.ProsperoBot;
 import prospero.commons.mediawiki.Continue;
 import prospero.commons.mediawiki.MWResponse;
+import prospero.commons.mediawiki.Page;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -23,17 +25,20 @@ public final class CategoryMembersAction extends RecursiveAction {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     
+    private final ProsperoBot bot;
+    
     private final String apiUrl;
 
     private final String categoryTitle;
     
     private final Continue qContinue;
     
-    public CategoryMembersAction(final String apiUrl, final String categoryTitle) {
-        this(apiUrl, categoryTitle, new Continue());
+    public CategoryMembersAction(final ProsperoBot bot, final String apiUrl, final String categoryTitle) {
+        this(bot, apiUrl, categoryTitle, new Continue());
     }
     
-    private CategoryMembersAction(final String apiUrl, final String categoryTitle, final Continue qContinue) {
+    private CategoryMembersAction(final ProsperoBot bot, final String apiUrl, final String categoryTitle, final Continue qContinue) {
+        this.bot = bot;
         this.apiUrl = apiUrl;
         this.categoryTitle = categoryTitle;
         this.qContinue = qContinue;
@@ -44,12 +49,13 @@ public final class CategoryMembersAction extends RecursiveAction {
         try {
             try (final InputStream is = query().asStream()) {
                 final MWResponse response = MAPPER.readValue(is, MWResponse.class);
-                LOGGER.debug(response.toString());
                 if (response.getqContinue() == null) {
                     LOGGER.debug("No continue, stopping");
-                    // Done
                 } else {
-                    new CategoryMembersAction(apiUrl, categoryTitle, response.getqContinue()).fork();
+                    new CategoryMembersAction(bot, apiUrl, categoryTitle, response.getqContinue()).fork();
+                }
+                for (final Page page : response.getQuery().getPages().values()) {
+                    new MerimeeCorrectorAction(bot, page).fork();
                 }
             }
         } catch (final IOException | URISyntaxException e) {
@@ -68,6 +74,7 @@ public final class CategoryMembersAction extends RecursiveAction {
                         .addParameter("continue", qContinue.getQueryContinue())
                         .addParameter("gcmcontinue", qContinue.getGcmcontinue())
                         .build())
+                .addHeader("User-Agent", ProsperoBot.BUNDLE.getString("useragent"))
                 .execute()
                 .returnContent();
     }
