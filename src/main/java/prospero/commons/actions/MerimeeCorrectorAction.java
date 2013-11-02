@@ -40,14 +40,19 @@ public final class MerimeeCorrectorAction extends RecursiveAction {
         if (!page.getRevisions().isEmpty()) {
             final Revision rev = page.getRevisions().get(0);
             final Matcher mériméeMatcher = MÉRIMÉE_PATTERN.matcher(rev.getContent());
-            final StringBuffer nextRev = new StringBuffer(rev.getContent().length());
+            final StringBuffer nextRevision = new StringBuffer(rev.getContent().length());
             while (mériméeMatcher.find()) {
                 LOGGER.debug("Found template {}", mériméeMatcher.group(0));
                 final String templateContent = mériméeMatcher.group(1);
-                mériméeMatcher.appendReplacement(nextRev, updateTemplate(templateContent));
+                mériméeMatcher.appendReplacement(nextRevision, updateTemplate(templateContent));
             }
-            mériméeMatcher.appendTail(nextRev);
-            LOGGER.debug(nextRev.toString());
+            mériméeMatcher.appendTail(nextRevision);
+            final PageUpdate update = new PageUpdate(page, nextRevision.toString());
+            if (bot.getPageUpdates().offer(update)) {
+                LOGGER.debug("Submitted update for page {}", page.getTitle());
+            } else {
+                LOGGER.error("Could not submit update of page {}", page.getTitle());
+            }
         }
     }
     

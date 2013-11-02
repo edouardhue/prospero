@@ -4,7 +4,7 @@ package prospero.commons.mediawiki;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
-public final class MWResponse {
+public final class MWQueryResponse extends MWBaseResponse {
     private Query query;
     
     @JsonProperty("continue")

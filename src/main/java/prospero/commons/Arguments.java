@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.kohsuke.args4j.Option;
 
-final class Arguments {
+public final class Arguments {
     @Option(name = "-m", aliases = "--merimee", required = true)
     private File merimeeFile;
 
@@ -13,6 +13,12 @@ final class Arguments {
 
     @Option(name = "-c", aliases = "--category", required = true)
     private String categoryTitle;
+
+    @Option(name = "-l", aliases = "--login", required = true)
+    private String login;
+
+    @Option(name = "-p", aliases = "--password", required = true)
+    private String password;
 
     public File getMerimeeFile() {
         return merimeeFile;
@@ -36,5 +42,21 @@ final class Arguments {
 
     public void setCategoryTitle(final String categoryTitle) {
         this.categoryTitle = categoryTitle;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(final String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
     }
 }

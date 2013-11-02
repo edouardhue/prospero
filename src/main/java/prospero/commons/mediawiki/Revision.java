@@ -4,29 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 
 public final class Revision {
-    private String contentformat;
-
-    private String contentmodel;
-
+    private String timestamp;
+    
     @JsonProperty("*")
     private String content;
 
-    public String getContentformat() {
-        return contentformat;
+    public String getTimestamp() {
+        return timestamp;
     }
-
-    public void setContentformat(final String contentformat) {
-        this.contentformat = contentformat;
+    
+    public void setTimestamp(final String timestamp) {
+        this.timestamp = timestamp;
     }
-
-    public String getContentmodel() {
-        return contentmodel;
-    }
-
-    public void setContentmodel(final String contentmodel) {
-        this.contentmodel = contentmodel;
-    }
-
+    
     public String getContent() {
         return content;
     }
@@ -37,7 +27,7 @@ public final class Revision {
     
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("content", content).toString();
+        return Objects.toStringHelper(this).add("timestamp", timestamp).add("content", content).toString();
     }
 
 }

@@ -12,6 +12,18 @@ public final class Page {
 
     private String title;
 
+    private String starttimestamp;
+
+    private String edittoken;
+
+    private String touched;
+
+    private Integer lastrevid;
+
+    private Integer counter;
+
+    private Integer length;
+
     private List<Revision> revisions;
 
     public Page(final String id, final Integer ns, final String title, final List<Revision> revisions) {
@@ -49,20 +61,68 @@ public final class Page {
     public void setTitle(final String title) {
         this.title = title;
     }
-    
+
+    public String getStarttimestamp() {
+        return starttimestamp;
+    }
+
+    public void setStarttimestamp(final String starttimestamp) {
+        this.starttimestamp = starttimestamp;
+    }
+
+    public String getEdittoken() {
+        return edittoken;
+    }
+
+    public void setEdittoken(final String edittoken) {
+        this.edittoken = edittoken;
+    }
+
+    public String getTouched() {
+        return touched;
+    }
+
+    public void setTouched(final String touched) {
+        this.touched = touched;
+    }
+
+    public Integer getLastrevid() {
+        return lastrevid;
+    }
+
+    public void setLastrevid(final Integer lastrevid) {
+        this.lastrevid = lastrevid;
+    }
+
+    public Integer getCounter() {
+        return counter;
+    }
+
+    public void setCounter(final Integer counter) {
+        this.counter = counter;
+    }
+
+    public Integer getLength() {
+        return length;
+    }
+
+    public void setLength(final Integer length) {
+        this.length = length;
+    }
+
     public List<Revision> getRevisions() {
         return revisions;
     }
-    
+
     public void setRevisions(final List<Revision> revisions) {
         this.revisions = revisions;
     }
-    
+
     @Override
     public int hashCode() {
         return Objects.hashCode(pageid);
     }
-    
+
     @Override
     public boolean equals(final Object obj) {
         final boolean isEqual;
@@ -73,7 +133,7 @@ public final class Page {
         }
         return isEqual;
     }
-    
+
     @Override
     public String toString() {
         final ToStringHelper helper = Objects.toStringHelper(this).add("pageid", pageid).add("ns", ns).add("title", title);

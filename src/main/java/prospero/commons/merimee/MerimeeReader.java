@@ -23,7 +23,7 @@ public final class MerimeeReader {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(MerimeeReader.class);
 
-    private static final int MAGIC_MONUMENT_COUNT = 44236;
+    public static final int MAGIC_MONUMENT_COUNT = 44236;
     
     private static final Pattern PROTECTION_PATTERN = Pattern.compile("(\\d{4}(?:/\\d{2}/\\d{2})?) : ((?:inscrit)|(?:classé)) MH");
     

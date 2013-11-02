@@ -13,18 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import prospero.commons.ProsperoBot;
 import prospero.commons.mediawiki.Continue;
-import prospero.commons.mediawiki.MWResponse;
+import prospero.commons.mediawiki.MWQueryResponse;
 import prospero.commons.mediawiki.Page;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public final class CategoryMembersAction extends RecursiveAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(CategoryMembersAction.class);
     
     private static final long serialVersionUID = 1L;
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
-    
     private final ProsperoBot bot;
     
     private final String apiUrl;
@@ -33,14 +30,14 @@ public final class CategoryMembersAction extends RecursiveAction {
     
     private final Continue qContinue;
     
-    public CategoryMembersAction(final ProsperoBot bot, final String apiUrl, final String categoryTitle) {
-        this(bot, apiUrl, categoryTitle, new Continue());
+    public CategoryMembersAction(final ProsperoBot bot) {
+        this(bot, new Continue());
     }
     
-    private CategoryMembersAction(final ProsperoBot bot, final String apiUrl, final String categoryTitle, final Continue qContinue) {
+    private CategoryMembersAction(final ProsperoBot bot, final Continue qContinue) {
         this.bot = bot;
-        this.apiUrl = apiUrl;
-        this.categoryTitle = categoryTitle;
+        this.apiUrl = bot.getArguments().getApiUri();
+        this.categoryTitle = bot.getArguments().getCategoryTitle();
         this.qContinue = qContinue;
     }
 
@@ -48,14 +45,15 @@ public final class CategoryMembersAction extends RecursiveAction {
     protected void compute() {
         try {
             try (final InputStream is = query().asStream()) {
-                final MWResponse response = MAPPER.readValue(is, MWResponse.class);
-                if (response.getqContinue() == null) {
-                    LOGGER.debug("No continue field in response, stopping");
-                } else {
-                    new CategoryMembersAction(bot, apiUrl, categoryTitle, response.getqContinue()).fork();
-                }
+                final MWQueryResponse response = ProsperoBot.MAPPER.readValue(is, MWQueryResponse.class);
                 for (final Page page : response.getQuery().getPages().values()) {
                     new MerimeeCorrectorAction(bot, page).fork();
+                }
+                if (response.getqContinue() == null) {
+                    LOGGER.debug("No continue field in response, stopping");
+                    bot.notifyExhausted();
+                } else {
+                    new CategoryMembersAction(bot, response.getqContinue()).fork();
                 }
             }
         } catch (final IOException | URISyntaxException e) {
@@ -68,8 +66,9 @@ public final class CategoryMembersAction extends RecursiveAction {
                         .addParameter("action", "query")
                         .addParameter("generator", "categorymembers")
                         .addParameter("gcmtitle", categoryTitle)
-                        .addParameter("prop", "revisions")
-                        .addParameter("rvprop", "content")
+                        .addParameter("prop", "revisions|info")
+                        .addParameter("rvprop", "content|timestamp")
+                        .addParameter("intoken", "edit")
                         .addParameter("format", "json")
                         .addParameter("continue", qContinue.getQueryContinue())
                         .addParameter("gcmcontinue", qContinue.getGcmcontinue())
